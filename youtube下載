@@ -1,0 +1,47 @@
+import os
+import yt_dlp
+import argparse
+
+def download_video(video_url, download_dir, download_format):
+    if download_format == "MP3":
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'outtmpl': os.path.join(download_dir, '%(title)s.%(ext)s'),
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'retries': 5,
+            'socket_timeout': 15,
+            'concurrent_fragment_downloads': 5,
+            'buffer_size': 1048576,
+        }
+    else:
+        ydl_opts = {
+            'format': 'best',
+            'outtmpl': os.path.join(download_dir, '%(title)s.%(ext)s'),
+            'retries': 5,
+            'socket_timeout': 15,
+            'concurrent_fragment_downloads': 5,
+            'buffer_size': 1048576,
+        }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([video_url])
+        print("下載完成！")
+    except Exception as e:
+        print(f'發生錯誤: {e}')
+
+def main():
+    parser = argparse.ArgumentParser(description="YouTube 下載器")
+    parser.add_argument("url", help="YouTube 影片網址")
+    parser.add_argument("--dir", help="下載路徑", default=".")
+    parser.add_argument("--format", help="下載格式 (MP3 或 Video)", default="Video")
+    args = parser.parse_args()
+
+    download_video(args.url, args.dir, args.format)
+
+if __name__ == "__main__":
+    main()
